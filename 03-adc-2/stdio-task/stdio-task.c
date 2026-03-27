@@ -19,6 +19,18 @@ char* stdio_task_handle()
 	{
 		return NULL;
 	}
+	 ///////////////
+	if (symbol == '\b' || symbol == 127)  // backspace
+	{
+		if (command_buf_idx > 0)
+		{
+			command_buf_idx--;
+			command[command_buf_idx] = '\0';
+			printf("\b \b"); 
+		}
+		return NULL;
+	}
+	/////////////////////
 	putchar(symbol);
 	if (symbol == '\r' || symbol == '\n')
 	{

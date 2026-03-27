@@ -8,3 +8,5 @@ typedef enum
 void adc_task_init();
 float adc_measurement();
 float temp_measurement();
+void adc_task_state_set(adc_task_state_t state);
+void adc_task_handle();

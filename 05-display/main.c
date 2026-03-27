@@ -54,6 +54,10 @@ void display_init(){
     gpio_set_function(ILI9341_PIN_MOSI, GPIO_FUNC_SPI);
     gpio_set_function(ILI9341_PIN_SCK, GPIO_FUNC_SPI);
 
+    gpio_init(ILI9341_PIN_CS);
+    gpio_init(ILI9341_PIN_DC);
+    gpio_init(ILI9341_PIN_RESET);
+
     gpio_set_dir(ILI9341_PIN_CS, GPIO_OUT);
     gpio_set_dir(ILI9341_PIN_DC, GPIO_OUT);
     gpio_set_dir(ILI9341_PIN_RESET, GPIO_OUT);
@@ -140,6 +144,105 @@ void mem_callback(const char* args) {
     uint32_t value = *(uint32_t*)addr;
     printf("0x%08X: 0x%08X\n", addr, value);
 }
+void disp_screen_callback(const char* args){
+	uint32_t c = 0;
+	int result = sscanf(args, "%x", &c);
+	
+	uint16_t color = COLOR_BLACK;
+	
+	if (result == 1){
+		color = RGB888_2_RGB565(c);
+	}
+	
+	ili9341_fill_screen(&ili9341_display, color);
+}
+void disp_px_callback(const char* args){
+    uint32_t c = 0;
+    uint16_t x, y;
+	int result = sscanf(args, "%hu %hu %x", &x, &y, &c);
+	
+	uint16_t color = COLOR_BLACK;
+	
+	if (result == 3){
+		color = RGB888_2_RGB565(c);
+        ili9341_draw_pixel(&ili9341_display, x , y , color);
+	}
+    else{
+        printf("Что-то пошло не так ¯\\_(ツ)_/¯\n");
+    }
+}
+void disp_line_callback(const char* args){
+    uint32_t c = 0;
+    uint16_t x0, y0, x1, y1;
+	int result = sscanf(args, "%hu %hu %hu %hu %x", &x0, &y0, &x1, &y1, &c);
+	
+	uint16_t color = COLOR_BLACK;
+	
+	if (result == 5){
+		color = RGB888_2_RGB565(c);
+        ili9341_draw_line(&ili9341_display, x0 , y0, x1, y1, color);
+        return;
+	}
+    if (result == 4){
+        ili9341_draw_line(&ili9341_display, x0 , y0, x1, y1, color);
+        return;
+    }
+    printf("Что-то пошло не так ¯\\_(ツ)_/¯\n");
+}
+void disp_rect_callback(const char* args){
+   uint32_t c = 0;
+    uint16_t x0, y0, width, height;
+	int result = sscanf(args, "%hu %hu %hu %hu %x", &x0, &y0, &width, &height, &c);
+	
+	uint16_t color = COLOR_BLACK;
+	
+	if (result == 5){
+		color = RGB888_2_RGB565(c);
+        ili9341_draw_rect(&ili9341_display, x0 , y0, width, height, color);
+	}
+    if (result == 4){
+        ili9341_draw_rect(&ili9341_display, x0 , y0, width, height, color);
+    }
+    else{
+        printf("Что-то пошло не так ¯\\_(ツ)_/¯\n");
+    }
+}
+void disp_frect_callback(const char* args){
+    uint32_t c = 0;
+    uint16_t x0, y0, width, height;
+	int result = sscanf(args, "%hu %hu %hu %hu %x", &x0, &y0, &width, &height, &c);
+	
+	uint16_t color = COLOR_BLACK;
+	
+	if (result == 5){
+		color = RGB888_2_RGB565(c);
+        ili9341_draw_filled_rect(&ili9341_display, x0 , y0, width, height, color);
+	}
+    if (result == 4){
+        ili9341_draw_filled_rect(&ili9341_display, x0 , y0, width, height, color);
+    }
+    else{
+        printf("Что-то пошло не так ¯\\_(ツ)_/¯\n");
+    }
+}
+void disp_text_callback(const char* args){
+    uint32_t c = 0;
+    uint32_t bc = 0;
+    uint16_t x, y;
+    char text_[64]={0};
+    uint16_t color = COLOR_WHITE;
+    uint16_t bcolor = COLOR_BLACK;
+    const ili9341_font_t* font = &jetbrains_font;
+    int result = sscanf(args, "%hu %hu %63s %x %x", &x, &y, text_, &c, &bc);
+    if (c != 0) {
+        color=RGB888_2_RGB565(c);
+    }
+    if (bc != 0) {
+        bcolor= RGB888_2_RGB565(bc);
+    }
+    ili9341_draw_text(&ili9341_display, x, y, text_, font, color, bcolor);
+}
+
 api_t device_api[] =
 {
     {"command_help", command_help_callback, "Get list of function"},
@@ -149,6 +252,12 @@ api_t device_api[] =
     {"blink", led_blink_callback, "Make the LED blink"},
     {"set_period", led_blink_set_period_ms_callback, "Set the value period"},
     {"mem", mem_callback, ""},
+    {"disp_screen", disp_screen_callback, "Fill in the color"},
+    {"disp_px", disp_px_callback, "Draw in pixels, args: x, y, color"},
+    {"disp_line", disp_line_callback, "Draw a line,  args: x0, y0, x1, y1, color"},
+    {"disp_rect", disp_rect_callback, "Draw a rect, args: x0, y0, wight, height, color"},
+    {"disp_frect", disp_frect_callback, "Draw a filled rect,  args: x0, y0, wight, height, color"},
+    {"disp_text", disp_text_callback, "Draw a text, args: x, y, text, text color, background color "},
 	{NULL, NULL, NULL},
 };
 

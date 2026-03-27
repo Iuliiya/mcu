@@ -46,6 +46,10 @@ void display_init(){
     gpio_set_function(ILI9341_PIN_MOSI, GPIO_FUNC_SPI);
     gpio_set_function(ILI9341_PIN_SCK, GPIO_FUNC_SPI);
 
+    gpio_init(ILI9341_PIN_CS);
+    gpio_init(ILI9341_PIN_DC);
+    gpio_init(ILI9341_PIN_RESET);
+    
     gpio_set_dir(ILI9341_PIN_CS, GPIO_OUT);
     gpio_set_dir(ILI9341_PIN_DC, GPIO_OUT);
     gpio_set_dir(ILI9341_PIN_RESET, GPIO_OUT);

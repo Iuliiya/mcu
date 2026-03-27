@@ -37,6 +37,12 @@ void temp_callback(const char* args) {
     float temp_C = temp_measurement();
     printf("%f\n", temp_C);
 }
+void tm_start_callback(const char* args){
+    adc_task_state_set(ADC_TASK_STATE_RUN);
+}
+void tm_stop_callback(const char* args){
+    adc_task_state_set(ADC_TASK_STATE_IDLE);
+}
 api_t device_api[] =
 {
 	{"version", version_callback, "get device name and firmware version"},
@@ -45,6 +51,8 @@ api_t device_api[] =
     {"blink", led_blink_callback, "Make the LED blink"},
     {"get_adc", adc_callback, "To get voltage"},
     {"get_temp", temp_callback, "To get temperature"},
+    {"tm_start", tm_start_callback, "Start telemetry (voltage + temperature)"},
+    {"tm_stop", tm_stop_callback, "Stop telemetry"},
 	{NULL, NULL, NULL},
 };
 
@@ -66,6 +74,7 @@ int main(){
             protocol_task_handle(command_copy);
         }
         led_task_handle();
+        adc_task_handle();
         
     }
     return 0;

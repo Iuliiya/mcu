@@ -18,13 +18,17 @@ pico_sdk_init()
 add_executable(04-bme
 	${CMAKE_CURRENT_SOURCE_DIR}/main.c
 	${CMAKE_CURRENT_SOURCE_DIR}/stdio-task/stdio-task.c
-	${CMAKE_CURRENT_SOURCE_DIR}/protocol-task/protocol-task.c
 	${CMAKE_CURRENT_SOURCE_DIR}/led-task/led-task.c
 )
+add_subdirectory("../libs/protocol" "${PROJECT_BINARY_DIR}/protocol")
+add_subdirectory("../libs/bme280-driver" "${PROJECT_BINARY_DIR}/bme280-driver")
 
 # Указываем на какие библиотеки ссылается наш код - типовая строчка для любого CMakeLists.txt
 target_link_libraries(04-bme
 	pico_stdlib
+	protocol
+	bme280-driver
+	hardware_i2c
 )
 
 # Указываем файл, в котором находится линкер скрипт - специфика сборки под МК
